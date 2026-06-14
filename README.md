@@ -15,14 +15,10 @@ pip install langchain-core langchain-ollama langsmith python-dotenv
 ### 🔑 Key Design Choices for a PoC
 | Component | Why This Approach |
 |-----------|-------------------|
-| **`PoCTelemetryMetrics`** | Self-contained, no API keys or cloud deps. Captures latency & prompt volume per 
-request. Easily swappable to LangSmith/DB later. |
-| **LangChain Expression Language (`|`)** | Declarative pipeline. Minimal boilerplate, composable, and standard 
-across LangChain versions. |
-| **`ChatOllama` + `base_url`** | Explicit Ollama endpoint handling. Works with local dev or remote Ollama 
-instances. |
-| **Time Capture via `perf_counter()`** | High-resolution timing outside the chain to avoid callback overhead in a 
-PoC. |
+| **`PoCTelemetryMetrics`** | Self-contained, no API keys or cloud deps. Captures latency & prompt volume per request. Easily swappable to LangSmith/DB later. |
+| **LangChain Expression Language (`|`)** | Declarative pipeline. Minimal boilerplate, composable, and standard across LangChain versions. |
+| **`ChatOllama` + `base_url`** | Explicit Ollama endpoint handling. Works with local dev or remote Ollama instances. |
+| **Time Capture via `perf_counter()`** | High-resolution timing outside the chain to avoid callback overhead in a PoC. |
 
 ### 🚀 Production Telemetry Upgrade Path
 When moving from PoC → prod, replace the custom metric collector with:
