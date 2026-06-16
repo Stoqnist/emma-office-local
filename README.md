@@ -1,15 +1,25 @@
 ![Python versions](https://img.shields.io/pypi/pyversions/mkdocs-badges)
 
 # emma-office-local
-PoC software prototype where LLM is running locally in ollama and is called programatically with python code and langchain telemetrics integration
+PoC: DeepSeek R1 locally served via Ollama, orchestrated with LangChain & telemetry tracking
 
-### 📦 Prerequisites
+### 🚀 Setup & Run
+
+#### 1. Pull local models
 ```bash
-# 1. Pull DeepSeek R1 via Ollama
-ollama pull deepseek-r1:latest  # or verify with `ollama list`
+ollama pull deepseek-r1:latest
+```
+```bash
+ollama pull nomic-embed-text
+```
+#### 2. Install deps (aligns with your pyproject.toml)
+```bash
+uv pip install -r requirements.txt
+```
 
-# 2. Install Python dependencies
-pip install langchain-core langchain-ollama langsmith python-dotenv
+#### 3. Run PoC
+```bash
+uv run python src/emma_v1.py
 ```
 
 ### 🔑 Key Design Choices for a PoC
@@ -40,7 +50,14 @@ def run_query_prod(q: str):
 LangSmith will automatically capture latency, token usage, prompt/response logs, and error rates without code 
 changes.
 
+### 🔮 Next Steps for Production
+- Swap `PoCTelemetryMetrics` → LangSmith or OpenTelemetry exporter
+- Replace SQLite with Postgres/Supabase for concurrent access
+- Add prompt caching via Ollama's `keep_alive=0` + Redis layer
+- Containerize with multi-stage Dockerfile + GPU passthrough
+
 ### ⚠️ Troubleshooting
 - `ConnectionRefusedError` → Ollama isn't running or port is blocked: `ollama serve`
 - `ModelNotFoundError` → Verify exact model tag: `ollama list | grep deepseek`
 - High latency/VRAM issues → Use quantized models like `deepseek-r1:7b-q4_K_M`
+
