@@ -3,7 +3,45 @@
 # emma-office-local
 PoC: DeepSeek R1 locally served via Ollama, orchestrated with LangChain & telemetry tracking
 
-### 🚀 Setup & Run
+### 🔑 Key Design Choices for a PoC
+| Component | Why This Approach |
+|-----------|-------------------|
+| **`PoCTelemetryMetrics`** | Self-contained, no API keys or cloud deps. Captures latency & prompt volume per request. Easily swappable to LangSmith/DB later. |
+| **`LangChain Expression Language`** | Declarative pipeline. Minimal boilerplate, composable, and standard across LangChain versions. |
+| **`ChatOllama` + `base_url`** | Explicit Ollama endpoint handling. Works with local dev or remote Ollama instances. |
+| **Time Capture via `perf_counter()`** | High-resolution timing outside the chain to avoid callback overhead in a PoC. |
+
+### 🚀 How to Run Tests
+
+###### Install test dependencies
+```shell
+uv pip install pytest pytest-cov hypothesis
+```
+
+###### Run full suite with coverage
+```shell
+cd /Users/stoyan/Projects/emma-office-local
+uv run pytest tests/test_emma_v1.py -v --tb=short --cov=src/emma_v1 --cov-report=term-missing
+```
+
+### 🔍 What This Suite Validates
+| Area | Tests Covered |
+|------|---------------|
+| **Telemetry Math** | Latency accumulation, average calculation, division-by-zero safety, prompt truncation |
+| **Chunking Logic** | Boundary conditions, overlap behavior, empty string handling |
+| **State Isolation** | Thread history CRUD, global variable reset between tests |
+| **DB Tool Safety** | Valid query format, SQL error handling, connection cleanup |
+| **KB Caching** | Cache hit/miss flow, missing directory warnings |
+| **LLM Loop & Telemetry Integration** | Tool-calling sequence simulation, error path capture, history persistence, latency tracking |
+
+### 🔧 Next Steps / Customization
+1. Replace mock responses in `mock_ollama_responses` with expected outputs from your merged logic if the tool-call structure changed.
+2. Add `pytest.mark.slow` to LLM-heavy tests if you want to run them separately.
+3. Want me to generate **Hypothesis-based property tests** for `chunk_text` or telemetry math? Or add **benchmark timing assertions**? Reply with your preference and I'll extend the suite in 
+<2 minutes.
+
+
+# 🚀 Setup & Run
 
 #### 1. Pull local models
 ```bash
@@ -21,14 +59,6 @@ uv pip install -r requirements.txt
 ```bash
 uv run python src/emma_v1.py
 ```
-
-### 🔑 Key Design Choices for a PoC
-| Component | Why This Approach |
-|-----------|-------------------|
-| **`PoCTelemetryMetrics`** | Self-contained, no API keys or cloud deps. Captures latency & prompt volume per request. Easily swappable to LangSmith/DB later. |
-| **`LangChain Expression Language`** | Declarative pipeline. Minimal boilerplate, composable, and standard across LangChain versions. |
-| **`ChatOllama` + `base_url`** | Explicit Ollama endpoint handling. Works with local dev or remote Ollama instances. |
-| **Time Capture via `perf_counter()`** | High-resolution timing outside the chain to avoid callback overhead in a PoC. |
 
 ### 🚀 Production Telemetry Upgrade Path
 When moving from PoC → prod, replace the custom metric collector with:
